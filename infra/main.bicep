@@ -10,12 +10,6 @@ param environmentName string
 // Look for the desired model in availability table. Default model is gpt-4o-mini:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#standard-deployment-model-availability
 @allowed([
-  'eastus'
-  'eastus2'
-  'northcentralus'
-  'southcentralus'
-  'swedencentral'
-  'westus'
   'westus3'
 ])
 param location string
@@ -48,16 +42,75 @@ module resources 'resources.bicep' = {
   }
 }
 
-module openai 'openai/openai.module.bicep' = {
-  name: 'openai'
+////////////////////////////////////////
+// START DEEPSEEK MODEL DEPLOYMENT
+////////////////////////////////////////
+var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+// var tags = { 'azd-env-name': environmentName }
+var disableKeyBasedAuth = true
+
+var aiServicesNameAndSubdomain = '${resourceToken}-aiservices'
+module deepseekr1 'br/public:avm/res/cognitive-services/account:0.7.2' = {
+  name: 'deepseek'
   scope: rg
   params: {
+    name: aiServicesNameAndSubdomain
     location: location
-    principalId: resources.outputs.MANAGED_IDENTITY_PRINCIPAL_ID
-    principalType: 'ServicePrincipal'
-    userId: userId
+    tags: tags
+    kind: 'AIServices'
+    customSubDomainName: aiServicesNameAndSubdomain
+    publicNetworkAccess: 'Enabled'
+    sku:  'S0'
+    deployments: [
+      {
+        name: 'DeepSeek-R1'
+        model: {
+          format: 'DeepSeek'
+          name: 'DeepSeek-R1'
+          version: '1'
+        }
+        sku: {
+          name: 'GlobalStandard'
+          capacity: 1
+        }
+      }]
+    disableLocalAuth: disableKeyBasedAuth
+    roleAssignments: [
+      {
+        principalId: principalId
+        principalType: 'User'
+        roleDefinitionIdOrName: 'Cognitive Services User'
+      }
+    ]
   }
 }
+
+////////////////////////////////////////
+// END DEEPSEEK MODEL DEPLOYMENT
+////////////////////////////////////////
+
+// module deepseekr1 'deepseekr1/deepseekr1.bicep' = {
+//   name: 'deepseekr1'
+//   params: {
+//     location: location
+//     environmentName: environmentName
+//     principalId: principalId
+//     userId: userId
+//   }
+// }
+
+// module openai 'openai/openai.module.bicep' = {
+//   name: 'openai'
+//   scope: rg
+//   params: {
+//     location: location
+//     principalId: resources.outputs.MANAGED_IDENTITY_PRINCIPAL_ID
+//     principalType: 'ServicePrincipal'
+//     userId: userId
+//   }
+// }
+
+
 output MANAGED_IDENTITY_CLIENT_ID string = resources.outputs.MANAGED_IDENTITY_CLIENT_ID
 output MANAGED_IDENTITY_NAME string = resources.outputs.MANAGED_IDENTITY_NAME
 output AZURE_LOG_ANALYTICS_WORKSPACE_NAME string = resources.outputs.AZURE_LOG_ANALYTICS_WORKSPACE_NAME
@@ -66,4 +119,6 @@ output AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID string = resources.outputs.A
 output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_NAME
 output AZURE_CONTAINER_APPS_ENVIRONMENT_ID string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_ID
 output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN
-output CONNECTIONSTRINGS__OPENAI string = openai.outputs.connectionString
+output AZURE_RESOURCE_GROUP string = rg.name
+output CONNECTIONSTRINGS__OPENAI string = 'Endpoint=https://${deepseekr1.outputs.name}.services.ai.azure.com/'
+//output CONNECTIONSTRINGS__OPENAI string = deepseekr1.outputs.connectionString
