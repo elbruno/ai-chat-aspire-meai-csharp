@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>AIChatApp</RootNamespace>
+    <UserSecretsId>a2a5e73b-ff90-4789-8ef7-7137f2ec3ac3</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

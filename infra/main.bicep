@@ -46,7 +46,6 @@ module resources 'resources.bicep' = {
 // START DEEPSEEK MODEL DEPLOYMENT
 ////////////////////////////////////////
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
-// var tags = { 'azd-env-name': environmentName }
 var disableKeyBasedAuth = true
 
 var aiServicesNameAndSubdomain = '${resourceToken}-aiservices'
@@ -74,7 +73,7 @@ module deepseekr1 'br/public:avm/res/cognitive-services/account:0.7.2' = {
           capacity: 1
         }
       }]
-    disableLocalAuth: disableKeyBasedAuth
+    disableLocalAuth: false
     roleAssignments: [
       {
         principalId: principalId

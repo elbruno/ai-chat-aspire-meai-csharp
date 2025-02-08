@@ -1,8 +1,13 @@
 using AIChatApp.Components;
 using AIChatApp.Model;
 using AIChatApp.Services;
+using Azure.AI;
 using Azure.AI.OpenAI;
+using Azure.Identity;
 using Microsoft.Extensions.AI;
+using OpenAI;
+using System.ClientModel;
+using System.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,12 +22,48 @@ builder.Services.AddRazorComponents()
 builder.AddAzureOpenAIClient("openai");
 
 // Add Microsoft.Extensions.AI. This will use the OpenAI client configured in the line above
-var chatDeploymentName = builder.Configuration["AI_ChatDeploymentName"] ?? "chat";
+var chatDeploymentName = "DeepSeek-R1"; // builder.Configuration["AI_ChatDeploymentName"] ?? "chat";
+
+
 
 builder.Services.AddChatClient(c =>
 {
-    var azureClient = c.Services.GetRequiredService<AzureOpenAIClient>();
-    return c.Use(azureClient.AsChatClient(chatDeploymentName));
+    var logger = c.Services.GetService<ILogger<Program>>()!;
+    logger.LogInformation($"==================================================");
+    logger.LogInformation($"Register ChatClient for DeepSeekR1");
+    logger.LogInformation($"Chat client configuration, modelId: openai");
+    logger.LogInformation($"Chat deployment name, modelId: {chatDeploymentName}");
+    logger.LogInformation($"==================================================");
+
+    IChatClient chatClient = null;
+    var (endpoint, apiKey) = GetEndpointAndKey(builder, "openai");
+    if (string.IsNullOrEmpty(apiKey))
+    {
+        // no apikey, use default azure credential  
+        var endpointModel = new Uri(endpoint);
+        logger.LogInformation($"DeepSeekR1 No ApiKey, use default azure credentials.");
+        logger.LogInformation($"Creating DeepSeekR1 chat client with modelId: [{chatDeploymentName}] / endpoint: [{endpoint}]");
+
+        AzureDirectDeploymentClient directDeploymentClient = new(new Uri(endpoint), new DefaultAzureCredential());
+        chatClient = c.Use(directDeploymentClient.AsChatClient(chatDeploymentName));
+    }
+    else
+    {
+        // using ApiKey
+        logger.LogInformation($"ApiKey Found, use ApiKey credentials.");
+        logger.LogInformation($"Creating DeepSeekR1 chat client with modelId: [{chatDeploymentName}] / endpoint: [{endpoint}] / apiKey length: {apiKey.Length}");
+        //AzureDirectDeploymentClient directDeploymentClient = new(new Uri(endpoint), new ApiKeyCredential(apiKey));
+        AzureOpenAIClient directDeploymentClient = new(new Uri(endpoint), new ApiKeyCredential(apiKey));
+        chatClient = c.Use(directDeploymentClient.AsChatClient(chatDeploymentName));
+
+
+    }
+    logger.LogInformation($"==================================================");
+    return chatClient;
+
+    //var azureClient = c.Services.GetRequiredService<AzureOpenAIClient>();
+    //return c.Use(azureClient.AsChatClient(chatDeploymentName));
+
 });
 
 
@@ -58,3 +99,10 @@ app.MapPost("/api/chat/stream", (ChatRequest request, ChatService chatHandler) =
     .WithOpenApi();
 
 app.Run();
+
+static (string endpoint, string apiKey) GetEndpointAndKey(WebApplicationBuilder builder, string name)
+{
+    var connectionString = builder.Configuration.GetConnectionString(name);
+    var parameters = HttpUtility.ParseQueryString(connectionString.Replace(";", "&"));
+    return (parameters["Endpoint"], parameters["Key"]);
+}
