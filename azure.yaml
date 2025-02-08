@@ -4,8 +4,13 @@ name: ai-chat-aspire-meai-csharp
 services:  
   app:
     language: dotnet
-    project: ./src/AIChatApp.AppHost/AIChatApp.AppHost.csproj
+    project: ./src/AIChatApp.WebIsol/AIChatApp.WebIsol.csproj
     host: containerapp
+  # app:
+  #   language: dotnet
+  #   project: ./src/AIChatApp.AppHost/AIChatApp.AppHost.csproj
+  #   host: containerapp
+
 hooks:
   postprovision:
     windows:

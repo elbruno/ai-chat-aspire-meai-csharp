@@ -3,11 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AIChatApp.Web", "AIChatApp.Web\AIChatApp.Web.csproj", "{AC66B3F8-C2F8-466C-A932-24527A2E9C9F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIChatApp.AppHost", "AIChatApp.AppHost\AIChatApp.AppHost.csproj", "{BB6B15B9-AE38-4099-9A03-09E21FC78559}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIChatApp.ServiceDefaults", "AIChatApp.ServiceDefaults\AIChatApp.ServiceDefaults.csproj", "{27219382-879B-419E-92D4-ADB5571C2AA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIChatApp.WebIsol", "AIChatApp.WebIsol\AIChatApp.WebIsol.csproj", "{F38260BF-EA94-9E58-D3BE-35D84EC01428}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,18 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AC66B3F8-C2F8-466C-A932-24527A2E9C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC66B3F8-C2F8-466C-A932-24527A2E9C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC66B3F8-C2F8-466C-A932-24527A2E9C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC66B3F8-C2F8-466C-A932-24527A2E9C9F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB6B15B9-AE38-4099-9A03-09E21FC78559}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB6B15B9-AE38-4099-9A03-09E21FC78559}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB6B15B9-AE38-4099-9A03-09E21FC78559}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB6B15B9-AE38-4099-9A03-09E21FC78559}.Release|Any CPU.Build.0 = Release|Any CPU
 		{27219382-879B-419E-92D4-ADB5571C2AA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{27219382-879B-419E-92D4-ADB5571C2AA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27219382-879B-419E-92D4-ADB5571C2AA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27219382-879B-419E-92D4-ADB5571C2AA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F38260BF-EA94-9E58-D3BE-35D84EC01428}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F38260BF-EA94-9E58-D3BE-35D84EC01428}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F38260BF-EA94-9E58-D3BE-35D84EC01428}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F38260BF-EA94-9E58-D3BE-35D84EC01428}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

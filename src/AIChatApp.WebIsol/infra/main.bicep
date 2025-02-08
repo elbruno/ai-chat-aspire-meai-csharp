@@ -2,32 +2,31 @@ targetScope = 'subscription'
 
 @minLength(1)
 @maxLength(64)
-@description('Name of the environment that can be used as part of naming resource convention, the name of the resource group for your application will use this name, prefixed with rg-')
+@description('Name of the environment that can be used as part of naming resource convention')
 param environmentName string
 
 @minLength(1)
-@description('The location used for all deployed resources')
-// Look for the desired model in availability table. Default model is gpt-4o-mini:
-// https://learn.microsoft.com/azure/ai-services/openai/concepts/models#standard-deployment-model-availability
-@allowed([
-    'eastus2'
-    'westus3'
-])
+@description('Primary location for all resources')
 param location string
 
+param aichatappWebisolExists bool
+@secure()
+param aichatappWebisolDefinition object
+
 @description('Id of the user or app to assign application roles')
-param principalId string = ''
+param principalId string
 
-// @description('Flag to decide where to create OpenAI role for current user')
-// param createRoleForUser bool = true
-
-// var userId = createRoleForUser ? principalId : ''
-
+// Tags that should be applied to all resources.
+// 
+// Note that 'azd-service-name' tags should be applied separately to service host resources.
+// Example usage:
+//   tags: union(tags, { 'azd-service-name': <service name in azure.yaml> })
 var tags = {
   'azd-env-name': environmentName
 }
 
-resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+// Organize resources in a resource group
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: 'rg-${environmentName}'
   location: location
   tags: tags
@@ -40,6 +39,8 @@ module resources 'resources.bicep' = {
     location: location
     tags: tags
     principalId: principalId
+    aichatappWebisolExists: aichatappWebisolExists
+    aichatappWebisolDefinition: aichatappWebisolDefinition
   }
 }
 
@@ -101,13 +102,9 @@ module deepseekr1 'br/public:avm/res/cognitive-services/account:0.7.2' = {
 ////////////////////////////////////////
 
 
-output MANAGED_IDENTITY_CLIENT_ID string = resources.outputs.MANAGED_IDENTITY_CLIENT_ID
-output MANAGED_IDENTITY_NAME string = resources.outputs.MANAGED_IDENTITY_NAME
-output AZURE_LOG_ANALYTICS_WORKSPACE_NAME string = resources.outputs.AZURE_LOG_ANALYTICS_WORKSPACE_NAME
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
-output AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID string = resources.outputs.AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID
-output AZURE_CONTAINER_APPS_ENVIRONMENT_NAME string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_NAME
-output AZURE_CONTAINER_APPS_ENVIRONMENT_ID string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_ID
-output AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN string = resources.outputs.AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN
-output AZURE_RESOURCE_GROUP string = rg.name
-output CONNECTIONSTRINGS__OPENAI string = 'Endpoint=https://${deepseekr1.outputs.name}.services.ai.azure.com/'
+output AZURE_KEY_VAULT_ENDPOINT string = resources.outputs.AZURE_KEY_VAULT_ENDPOINT
+output AZURE_KEY_VAULT_NAME string = resources.outputs.AZURE_KEY_VAULT_NAME
+output AZURE_RESOURCE_AICHATAPP_WEBISOL_ID string = resources.outputs.AZURE_RESOURCE_AICHATAPP_WEBISOL_ID
+
+  output CONNECTIONSTRINGS__OPENAI string = 'Endpoint=https://${deepseekr1.outputs.name}.services.ai.azure.com/'
